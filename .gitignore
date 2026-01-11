@@ -17,7 +17,6 @@ coverage/
 !LICENSE
 docs/
 examples/
-.kiro/
 
 # Build artifacts
 build/
