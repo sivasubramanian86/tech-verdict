@@ -32,10 +32,7 @@ jobs:
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --since-commit HEAD~1
-        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        if: github.event_name == 'pull_request'
 
       - name: SAST scan
         run: |
