@@ -15,6 +15,7 @@ coverage/
 !README.md
 !CONTRIBUTING.md
 !LICENSE
+!.kiro/**/*.md
 docs/
 examples/
 
