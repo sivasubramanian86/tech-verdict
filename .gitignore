@@ -1,0 +1,31 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
+coverage/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation files (exclude from repo)
+*.md
+!README.md
+!CONTRIBUTING.md
+!LICENSE
+docs/
+examples/
+.kiro/
+
+# Build artifacts
+build/
+out/
+.next/
+.vercel/
+.aws-sam/
+
+# Temporary files
+tmp/
+temp/

@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech Verdict - Modern Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0F172A;
+      --accent: #14B8A6;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #F43F5E;
+      --neutral: #64748B;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --shadow: 0 4px 6px rgba(0,0,0,0.07);
+      --glow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+    }
+
+    .dark-mode {
+      --primary: #F1F5F9;
+      --accent: #14B8A6;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #F43F5E;
+      --neutral: #94A3B8;
+      --bg: #0F172A;
+      --card: #1E293B;
+      --shadow: 0 4px 6px rgba(0,0,0,0.3);
+      --glow: 0 0 0 3px rgba(20, 184, 166, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--primary);
+      line-height: 1.6;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: var(--card);
+      border-right: 1px solid #E2E8F0;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      background: #F1F5F9;
+      color: var(--accent);
+    }
+
+    .nav-item.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .main-content {
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: var(--neutral);
+      font-size: 16px;
+    }
+
+    .section {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid #E2E8F0;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .constraint-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .constraint-card {
+      background: #F8FAFC;
+      border: 2px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .constraint-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--glow);
+    }
+
+    .constraint-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .radio-option input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    .constraint-hint {
+      font-size: 14px;
+      color: var(--neutral);
+    }
+
+    .options-input {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .options-input input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #E2E8F0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .options-input input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: var(--glow);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0F766E;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #F1F5F9;
+      color: var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: #E2E8F0;
+    }
+
+    .option-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .option-tag {
+      background: var(--accent);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .option-tag button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+    }
+
+    .comparison-matrix {
+      overflow-x: auto;
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+    }
+
+    .matrix-table th,
+    .matrix-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .matrix-table th {
+      background: #F8FAFC;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .score-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-fill {
+      height: 8px;
+      border-radius: 4px;
+      min-width: 80px;
+      background: #E2E8F0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .score-fill::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--error) 0%, var(--warning) 50%, var(--success) 100%);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+      width: var(--score, 0%);
+    }
+
+    .score-value {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .tradeoff-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+    }
+
+    .tradeoff-card {
+      border: 2px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .tradeoff-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+    }
+
+    .tradeoff-header {
+      display: flex;
+      justify-content: between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .tradeoff-title {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fit-score {
+      background: var(--success);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .gains-losses {
+      margin-bottom: 16px;
+    }
+
+    .gains-losses h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .gains h4 {
+      color: var(--success);
+    }
+
+    .losses h4 {
+      color: var(--error);
+    }
+
+    .tradeoff-item {
+      padding: 8px 0;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .decision-steerer {
+      background: linear-gradient(135deg, var(--accent) 0%, #0F766E 100%);
+      color: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .decision-question {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .decision-options {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .decision-option {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex: 1;
+      text-align: center;
+    }
+
+    .decision-option:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(20, 184, 166, 0.2);
+      border-top: 4px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: var(--error);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      
+      .sidebar {
+        display: none;
+      }
+      
+      .constraint-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .tradeoff-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <div class="logo">🏛️ Tech Verdict</div>
+      <nav>
+        <div class="nav-item active">
+          <span>⚡</span> New Comparison
+        </div>
+        <div class="nav-item">
+          <span>📊</span> Recent
+        </div>
+        <div class="nav-item">
+          <span>💾</span> Saved Verdicts
+        </div>
+        <div class="nav-item">
+          <span>📋</span> Templates
+        </div>
+        <div class="nav-item">
+          <span>🌙</span> <span onclick="toggleTheme()" style="cursor: pointer;">Theme</span>
+        </div>
+        <div class="nav-item">
+          <span>⚙️</span> Settings
+        </div>
+      </nav>
+    </div>
+
+    <div class="main-content">
+      <div class="header">
+        <h1>Technology Comparison</h1>
+        <p>Compare technology options fairly and surface explicit trade-offs</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <span>🎯</span> Your Constraints
+        </div>
+        <div class="constraint-cards">
+          <div class="constraint-card">
+            <h3>💰 Budget</h3>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="budget" value="low" checked>
+                <span>Low</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="budget" value="medium">
+                <span>Medium</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="budget" value="high">
+                <span>High</span>
+              </label>
+            </div>
+            <div class="constraint-hint">Estimated monthly: &lt;$500</div>
+          </div>
+
+          <div class="constraint-card">
+            <h3>📈 Scale</h3>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="scale" value="small">
+                <span>Small</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="scale" value="medium" checked>
+                <span>Medium</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="scale" value="large">
+                <span>Large</span>
+              </label>
+            </div>
+            <div class="constraint-hint">Expected users: 10k-100k</div>
+          </div>
+
+          <div class="constraint-card">
+            <h3>⚡ Performance</h3>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="performance" value="standard">
+                <span>Standard</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="performance" value="high">
+                <span>High</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="performance" value="critical" checked>
+                <span>Critical</span>
+              </label>
+            </div>
+            <div class="constraint-hint">Latency requirements: &lt;100ms</div>
+          </div>
+
+          <div class="constraint-card">
+            <h3>👥 Team Size</h3>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="team" value="small" checked>
+                <span>1-5</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="team" value="medium">
+                <span>6-20</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="team" value="large">
+                <span>20+</span>
+              </label>
+            </div>
+            <div class="constraint-hint">DevOps capacity: Limited</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <span>🔧</span> Technologies to Compare
+        </div>
+        <div class="options-input">
+          <input type="text" id="optionInput" placeholder="e.g., AWS Lambda, Google Cloud Functions" list="techList">
+          <button class="btn btn-primary" onclick="window.ui.addOption()">Add</button>
+        </div>
+        <datalist id="techList">
+          <option value="AWS Lambda">
+          <option value="AWS EC2">
+          <option value="AWS Fargate">
+          <option value="Google Cloud Functions">
+          <option value="Google Cloud Run">
+          <option value="PostgreSQL">
+          <option value="MongoDB">
+          <option value="DynamoDB">
+        </datalist>
+        <div class="option-tags" id="optionsContainer"></div>
+        <button class="btn btn-primary" onclick="window.ui.compare()" style="width: 100%; margin-top: 16px;">
+          Compare Options
+        </button>
+      </div>
+
+      <div id="results"></div>
+    </div>
+  </div>
+
+  <script>
+    class ComparisonUI {
+      constructor() {
+        this.options = [];
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        const optionInput = document.getElementById('optionInput');
+        if (optionInput) {
+          optionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.addOption();
+          });
+        }
+      }
+
+      addOption() {
+        const input = document.getElementById('optionInput');
+        const value = input.value.trim();
+        if (value && !this.options.includes(value)) {
+          this.options.push(value);
+          this.renderOptions();
+          input.value = '';
+        }
+      }
+
+      removeOption(option) {
+        this.options = this.options.filter(o => o !== option);
+        this.renderOptions();
+      }
+
+      renderOptions() {
+        const container = document.getElementById('optionsContainer');
+        if (!container) return;
+        
+        container.innerHTML = this.options.map(opt => `
+          <div class="option-tag">
+            ${opt}
+            <button onclick="window.ui.removeOption('${opt}')">×</button>
+          </div>
+        `).join('');
+      }
+
+      getConstraints() {
+        const constraints = [];
+        const budget = document.querySelector('input[name="budget"]:checked')?.value;
+        if (budget) constraints.push(`budget: ${budget}`);
+        const scale = document.querySelector('input[name="scale"]:checked')?.value;
+        if (scale) constraints.push(`scale: ${scale}`);
+        const performance = document.querySelector('input[name="performance"]:checked')?.value;
+        if (performance) constraints.push(`performance: ${performance}`);
+        const team = document.querySelector('input[name="team"]:checked')?.value;
+        if (team) constraints.push(`team size: ${team}`);
+        return constraints.join(', ');
+      }
+
+      async compare() {
+        const constraints = this.getConstraints();
+        const resultsDiv = document.getElementById('results');
+        
+        if (!constraints) {
+          resultsDiv.innerHTML = '<div class="error">Please select your constraints</div>';
+          return;
+        }
+        
+        if (this.options.length < 2) {
+          resultsDiv.innerHTML = '<div class="error">Please add at least 2 technologies to compare</div>';
+          return;
+        }
+
+        resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Analyzing options...</p></div>';
+
+        try {
+          const response = await fetch('/compare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ constraints, options: this.options })
+          });
+
+          if (!response.ok) throw new Error('Comparison failed');
+          
+          const data = await response.json();
+          this.renderResults(data);
+        } catch (error) {
+          resultsDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        }
+      }
+
+      renderResults(data) {
+        const resultsDiv = document.getElementById('results');
+        if (!resultsDiv) return;
+
+        let html = `
+          <div class="section">
+            <div class="section-title">
+              <span>📊</span> Comparison Results
+            </div>
+            <div class="comparison-matrix">
+              <table class="matrix-table">
+                <thead>
+                  <tr>
+                    <th>Technology</th>
+                    <th>Cost</th>
+                    <th>Performance</th>
+                    <th>Scalability</th>
+                    <th>Complexity</th>
+                    <th>Overall Fit</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+
+        data.options.forEach(option => {
+          const scores = option.scores;
+          html += `
+            <tr>
+              <td><strong>${option.name}</strong></td>
+              <td>
+                <div class="score-bar">
+                  <div class="score-fill" style="--score: ${(scores.cost || 0) * 100}%"></div>
+                  <span class="score-value">${Math.round((scores.cost || 0) * 100)}%</span>
+                </div>
+              </td>
+              <td>
+                <div class="score-bar">
+                  <div class="score-fill" style="--score: ${(scores.performance || 0) * 100}%"></div>
+                  <span class="score-value">${Math.round((scores.performance || 0) * 100)}%</span>
+                </div>
+              </td>
+              <td>
+                <div class="score-bar">
+                  <div class="score-fill" style="--score: ${(scores.scalability || 0) * 100}%"></div>
+                  <span class="score-value">${Math.round((scores.scalability || 0) * 100)}%</span>
+                </div>
+              </td>
+              <td>
+                <div class="score-bar">
+                  <div class="score-fill" style="--score: ${(scores.complexity || 0) * 100}%"></div>
+                  <span class="score-value">${Math.round((scores.complexity || 0) * 100)}%</span>
+                </div>
+              </td>
+              <td>
+                <div class="score-bar">
+                  <div class="score-fill" style="--score: ${(scores.overall || 0) * 100}%"></div>
+                  <span class="score-value">${Math.round((scores.overall || 0) * 100)}%</span>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += `
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">
+              <span>⚖️</span> Trade-off Analysis
+            </div>
+            <div class="tradeoff-cards">
+        `;
+
+        data.options.forEach(option => {
+          html += `
+            <div class="tradeoff-card">
+              <div class="tradeoff-header">
+                <div class="tradeoff-title">
+                  <span>🔧</span> ${option.name}
+                </div>
+                <div class="fit-score">${Math.round((option.scores.overall || 0) * 100)}% fit</div>
+              </div>
+              <div class="gains-losses">
+                <div class="gains">
+                  <h4><span>✅</span> Benefits</h4>
+                  ${option.tradeoffs.map(t => `
+                    <div class="tradeoff-item">
+                      <span>•</span> ${t.benefit}
+                    </div>
+                  `).join('')}
+                </div>
+                <div class="losses">
+                  <h4><span>⚠️</span> Trade-offs</h4>
+                  ${option.tradeoffs.map(t => `
+                    <div class="tradeoff-item">
+                      <span>•</span> ${t.cost}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                <div style="font-size: 14px; color: var(--neutral);">
+                  <strong>Best for:</strong> ${option.bestFor || 'General use cases'}
+                </div>
+                <div style="font-size: 14px; color: var(--neutral); margin-top: 4px;">
+                  <strong>Avoid if:</strong> ${option.worstFor || 'No major limitations'}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </div>
+
+          <div class="decision-steerer">
+            <div class="decision-question">
+              💡 ${data.nextQuestion || 'Consider your priorities and constraints when making the final decision.'}
+            </div>
+            ${data.clarifyingQuestions && data.clarifyingQuestions.length > 0 ? `
+              <div style="margin-top: 16px;">
+                <strong>Additional considerations:</strong>
+                <ul style="margin-top: 8px; padding-left: 20px;">
+                  ${data.clarifyingQuestions.map(q => `<li style="margin-bottom: 4px;">${q}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          </div>
+        `;
+
+        resultsDiv.innerHTML = html;
+      }
+    }
+
+    // Initialize UI when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      window.ui = new ComparisonUI();
+    });
+    
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+    
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.body.classList.add('dark-mode');
+    }
+  </script>
+</body>
+</html>

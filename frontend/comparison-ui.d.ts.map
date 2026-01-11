@@ -1,0 +1,1 @@
+{"version":3,"file":"comparison-ui.d.ts","sourceRoot":"","sources":["comparison-ui.ts"],"names":[],"mappings":"AAAA,qBAAa,YAAY;IACvB,OAAO,CAAC,OAAO,CAAgB;;IAM/B,OAAO,CAAC,mBAAmB;IAS3B,SAAS,IAAI,IAAI;IAUjB,YAAY,CAAC,MAAM,EAAE,MAAM,GAAG,IAAI;IAKlC,OAAO,CAAC,aAAa;IAWf,OAAO,IAAI,OAAO,CAAC,IAAI,CAAC;IA+B9B,OAAO,CAAC,aAAa;CAkDtB"}

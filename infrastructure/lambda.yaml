@@ -1,0 +1,155 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: Tech Verdict - Multi-agent comparison tool
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: nodejs18.x
+    Environment:
+      Variables:
+        BEDROCK_MODEL_ID: claude-3-sonnet-20240229
+        NODE_ENV: production
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Environment name
+
+Resources:
+  TechVerdictFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'tech-verdict-${Environment}'
+      CodeUri: dist/
+      Handler: api.default
+      Description: Tech Verdict comparison engine
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: !Sub 'arn:aws:bedrock:${AWS::Region}::model/anthropic.claude-3-sonnet-20240229-v1:0'
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/tech-verdict-*'
+      Events:
+        CompareApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TechVerdictApi
+            Path: /compare
+            Method: POST
+        HealthApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TechVerdictApi
+            Path: /health
+            Method: GET
+      Tags:
+        Environment: !Ref Environment
+        Application: tech-verdict
+
+  TechVerdictApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub 'tech-verdict-api-${Environment}'
+      StageName: !Ref Environment
+      TracingEnabled: true
+      MethodSettings:
+        - ResourcePath: '/*'
+          HttpMethod: '*'
+          LoggingLevel: INFO
+          DataTraceEnabled: true
+          MetricsEnabled: true
+      Auth:
+        DefaultAuthorizer: ApiKeyAuthorizer
+        Authorizers:
+          ApiKeyAuthorizer:
+            FunctionArn: !GetAtt ApiKeyAuthorizerFunction.Arn
+            Identity:
+              ReauthorizeEveryInSeconds: 300
+
+  ApiKeyAuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'tech-verdict-authorizer-${Environment}'
+      CodeUri: dist/
+      Handler: authorizer.handler
+      Runtime: nodejs18.x
+      Timeout: 5
+      MemorySize: 128
+
+  FunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/tech-verdict-${Environment}'
+      RetentionInDays: 30
+
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/apigateway/tech-verdict-${Environment}'
+      RetentionInDays: 30
+
+  FunctionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'tech-verdict-errors-${Environment}'
+      AlarmDescription: Alert on Lambda function errors
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref TechVerdictFunction
+
+  DurationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'tech-verdict-duration-${Environment}'
+      AlarmDescription: Alert on high Lambda duration
+      MetricName: Duration
+      Namespace: AWS/Lambda
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 25000
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref TechVerdictFunction
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${TechVerdictApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}'
+    Export:
+      Name: !Sub 'tech-verdict-api-${Environment}'
+
+  FunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt TechVerdictFunction.Arn
+    Export:
+      Name: !Sub 'tech-verdict-function-arn-${Environment}'
+
+  FunctionName:
+    Description: Lambda function name
+    Value: !Ref TechVerdictFunction
+    Export:
+      Name: !Sub 'tech-verdict-function-name-${Environment}'
