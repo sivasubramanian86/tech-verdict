@@ -33,7 +33,7 @@ export class ComparisonOrchestrator {
   }
 
   // Enhanced agents with AI integration
-  async parseConstraintsWithAI(constraints: any): Promise<any> {
+  async parseConstraintsWithAI(constraints: Record<string, unknown>): Promise<Record<string, unknown>> {
     try {
       const prompt = `Parse these technology constraints and assign weights (0-1):
 ${JSON.stringify(constraints)}
@@ -41,23 +41,23 @@ ${JSON.stringify(constraints)}
 Return JSON with parsed_constraints, confidence, and summary.`;
       
       const aiResponse = await this.aiProvider.generateInsight(prompt);
-      return JSON.parse(aiResponse);
+      return JSON.parse(aiResponse) as Record<string, unknown>;
     } catch (error) {
       // Fallback to rule-based parsing
       return {
         parsed_constraints: {
-          budget: { value: constraints.budget || 'medium', weight: constraints.budget === 'low' ? 0.9 : 0.7 },
-          scale: { value: constraints.scale || 'medium', weight: constraints.scale === 'large' ? 0.9 : 0.7 },
-          performance: { value: constraints.performance || 'standard', weight: constraints.performance === 'critical' ? 0.95 : 0.7 },
-          team: { value: constraints.team || 'medium', weight: constraints.team === 'small' ? 0.8 : 0.6 }
+          budget: { value: (constraints as Record<string, string>).budget || 'medium', weight: (constraints as Record<string, string>).budget === 'low' ? 0.9 : 0.7 },
+          scale: { value: (constraints as Record<string, string>).scale || 'medium', weight: (constraints as Record<string, string>).scale === 'large' ? 0.9 : 0.7 },
+          performance: { value: (constraints as Record<string, string>).performance || 'standard', weight: (constraints as Record<string, string>).performance === 'critical' ? 0.95 : 0.7 },
+          team: { value: (constraints as Record<string, string>).team || 'medium', weight: (constraints as Record<string, string>).team === 'small' ? 0.8 : 0.6 }
         },
         confidence: 0.85,
-        summary: `AI-enhanced analysis: ${constraints.performance || 'standard'} performance priority`
+        summary: `AI-enhanced analysis: ${(constraints as Record<string, string>).performance || 'standard'} performance priority`
       };
     }
   }
 
-  async compareOptionsWithAI(constraints: any, options: string[]): Promise<any> {
+  async compareOptionsWithAI(constraints: Record<string, unknown>, options: string[]): Promise<Record<string, unknown>> {
     try {
       const prompt = `Compare these technology options against constraints:
 Options: ${options.join(', ')}
@@ -66,7 +66,7 @@ Constraints: ${JSON.stringify(constraints)}
 Return comparison_matrix with scores, methodology, and data_source.`;
       
       const aiResponse = await this.aiProvider.generateInsight(prompt);
-      return JSON.parse(aiResponse);
+      return JSON.parse(aiResponse) as Record<string, unknown>;
     } catch (error) {
       // Fallback to mock data
       const mockData = this.getMockResult('', options);
@@ -116,9 +116,9 @@ Return comparison_matrix with scores, methodology, and data_source.`;
       ],
       options: options.map(option => ({
         name: option,
-        scores: (mockScores as any)[option] || { cost: 0.7, performance: 0.7, scalability: 0.7, complexity: 0.7, overall: 0.7 },
-        tradeoffs: (mockTradeoffs as any)[option] || [
-          { benefit: `${option} provides good performance`, cost: `${option} requires setup`, confidence: 'medium', dataSource: 'General analysis' }
+        scores: (mockScores as Record<string, Record<string, number>>)[option] || { cost: 0.7, performance: 0.7, scalability: 0.7, complexity: 0.7, overall: 0.7 },
+        tradeoffs: (mockTradeoffs as Record<string, Array<{ benefit: string; cost: string; confidence: 'high' | 'medium' | 'low'; dataSource: string }>>)[option] || [
+          { benefit: `${option} provides good performance`, cost: `${option} requires setup`, confidence: 'medium' as const, dataSource: 'General analysis' }
         ],
         bestFor: `Use ${option} for standard applications`,
         worstFor: `Avoid ${option} for specialized use cases`

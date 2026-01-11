@@ -24,8 +24,8 @@ app.post('/api/parse-constraints', async (req: Request, res: Response) => {
 // Agent 2: Compare Options
 app.post('/api/compare-options', async (req: Request, res: Response) => {
   try {
-    const { parsed_constraints, options } = req.body;
-    const result = await orchestrator.compareOptionsWithAI(parsed_constraints, options);
+    const { options } = req.body;
+    const result = await orchestrator.compareOptionsWithAI({}, options);
     res.json(result);
   } catch (error) {
     console.error('Compare options error:', error);
@@ -36,7 +36,7 @@ app.post('/api/compare-options', async (req: Request, res: Response) => {
 // Agent 3: Analyze Trade-offs
 app.post('/api/analyze-tradeoffs', async (req: Request, res: Response) => {
   try {
-    const { option, parsed_constraints } = req.body;
+    const { option } = req.body;
     const mockData = await orchestrator.orchestrate('mock', [option]);
     const optionData = mockData.options[0];
     
@@ -67,8 +67,6 @@ app.post('/api/analyze-tradeoffs', async (req: Request, res: Response) => {
 // Agent 4: Decision Guidance
 app.post('/api/get-guidance', async (req: Request, res: Response) => {
   try {
-    const { parsed_constraints, comparison_matrix, interaction_history } = req.body;
-    
     const result = {
       current_status: 'Analyzing your technology options',
       key_question: 'Which factor is most important for your project success?',
